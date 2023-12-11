@@ -1,13 +1,16 @@
 <resources>
-    <string name="app_name">RR</string>
+    <string name="app_name">ARS Parafusos</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">RR Soluções</string>
+    <string name="nav_header_title">ARS Parafusos</string>
     <string name="nav_header_subtitle">Gerenciador de Estoque</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Configurações</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_qrcode">QR Code</string>
+    <string name="menu_home">Ler QR Code</string>
+    <string name="menu_qrcode">Criar QR Code</string>
     <string name="menu_incluirproduto">Incluir Produto</string>
+    <string name="bt_lerqrcode">Ler QR Code</string>
+    <string name="bt_salvarRegistro">Salvar Registro</string>
+    <string name="bt_gerarQrCode">Gerar QR Code</string>
 </resources>
