@@ -13,7 +13,9 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.zxing.integration.android.IntentIntegrator
+import com.rr.ars.R
 import com.rr.ars.databinding.FragmentPesquisaBinding
+import com.rr.ars.ui.CustomGridView
 import com.rr.ars.ui.bancodedados.DatabaseHelper
 import com.rr.ars.ui.home.HomeFragment
 
@@ -41,6 +43,10 @@ class PesquisaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         databaseHelper = DatabaseHelper(requireContext())
 
+        val customGridView = binding.customGridView // Se você está usando View Binding
+        // Ou se você não estiver usando View Binding:
+        //val customGridView = view.findViewById<CustomGridView>(R.id.customGridView)
+
         val buttonScan: Button = binding.leituraQrcode
         buttonScan.setOnClickListener {
             checkCameraPermissionAndScan()
@@ -60,8 +66,10 @@ class PesquisaFragment : Fragment() {
                 // Correção: usar getEnderecoEstoqueColumnName para obter o nome da coluna
                 val enderecoEstoque = cursor.safeGetString(DatabaseHelper.getEnderecoEstoqueColumnName())
                 if (enderecoEstoque.length == 6) { // Verifica se o endereço é válido
-                    val posX = enderecoEstoque.substring(0, 2)
-                    val posY = enderecoEstoque.substring(2, 4)
+                    val posX = enderecoEstoque.substring(0, 2).toIntOrNull() ?: return
+                    val posY = enderecoEstoque.substring(2, 4).toIntOrNull() ?: return
+                    // Atualiza as coordenadas do produto na CustomGridView
+                    binding.customGridView.setProductPosition(posX, posY)
                     val armazem = enderecoEstoque[4].toString()
                     val prateleira = enderecoEstoque[5].toString()
 
