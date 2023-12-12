@@ -36,6 +36,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    // Métodos públicos para acessar os nomes das colunas
+    public static String getCodigoProdutoColumnName() {
+        return CODIGO_PRODUTO;
+    }
+    public static String getLoteProdutoColumnName() {
+        return LOTE_PRODUTO;
+    }
+    public static String getSubLoteProdutoColumnName() {
+        return SUB_LOTE_PRODUTO;
+    }
+    public static String getAlmoxarifadoColumnName() {
+        return ALMOXARIFADO;
+    }
+    public static String getLoteFornecedorColumnName() {
+        return LOTE_FORNECEDOR;
+    }
+    public static String getSerieNotaColumnName() {
+        return SERIE_NOTA;
+    }
+    public static String getNotaFiscalColumnName() {
+        return NOTA_FISCAL;
+    }
+    public static String getEnderecoEstoqueColumnName() {
+        return ENDERECO_ESTOQUE;
+    }
+
+    public String getEnderecoEstoqueByUid(String uid) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String enderecoEstoque = "";
+        Cursor cursor = db.rawQuery("SELECT " + ENDERECO_ESTOQUE + " FROM " + TABLE_NAME + " WHERE " + UID + "=?", new String[]{uid});
+        if (cursor.moveToFirst()) {
+            enderecoEstoque = cursor.getString(cursor.getColumnIndex(ENDERECO_ESTOQUE));
+        }
+        cursor.close();
+        return enderecoEstoque;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);

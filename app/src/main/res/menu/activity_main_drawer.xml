@@ -10,11 +10,15 @@
             android:title="@string/menu_home" />
         <item
             android:id="@+id/nav_qrcode"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@android:drawable/ic_menu_crop"
             android:title="@string/menu_qrcode" />
         <item
             android:id="@+id/nav_incluirproduto"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@android:drawable/ic_menu_edit"
             android:title="@string/menu_incluirproduto" />
+        <item
+            android:id="@+id/nav_pesquisa"
+            android:icon="@android:drawable/ic_menu_search"
+            android:title="@string/menu_pesquisa" />
     </group>
 </menu>

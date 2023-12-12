@@ -14,6 +14,7 @@
         android:layout_marginEnd="1dp"
         android:layout_marginBottom="1dp"
         android:orientation="vertical"
+        android:paddingHorizontal="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +24,7 @@
             android:id="@+id/leitura_qrcode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/bt_lerqrcode"/>
+            android:text="@string/bt_lerqrcode" />
 
         <TextView
             android:id="@+id/textViewUID"
@@ -43,31 +44,37 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
+
         <TextView
             android:id="@+id/textViewSubLoteProduto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
+
         <TextView
             android:id="@+id/textViewAlmoxarifado"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
+
         <TextView
             android:id="@+id/textViewLoteFornecedor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
+
         <TextView
             android:id="@+id/textViewSerieNota"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
+
         <TextView
             android:id="@+id/textViewNotaFiscal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
+
         <TextView
             android:id="@+id/textViewEnderecoEstoque"
             android:layout_width="match_parent"

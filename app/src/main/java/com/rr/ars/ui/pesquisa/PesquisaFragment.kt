@@ -1,53 +1,86 @@
-package com.rr.ars.ui.home
+package com.rr.ars.ui.pesquisa
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.google.zxing.integration.android.IntentIntegrator
-import com.rr.ars.databinding.FragmentHomeBinding
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.zxing.integration.android.IntentIntegrator
+import com.rr.ars.databinding.FragmentPesquisaBinding
 import com.rr.ars.ui.bancodedados.DatabaseHelper
+import com.rr.ars.ui.home.HomeFragment
 
 
-class HomeFragment : Fragment() {
+class PesquisaFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentPesquisaBinding? = null
     private val binding get() = _binding!!
 
-    companion object {
-        const val PERMISSION_REQUEST_CAMERA = 1
-    }
+    private lateinit var databaseHelper: DatabaseHelper
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View {
-        val homeViewModel =
-                ViewModelProvider(this).get(HomeViewModel::class.java)
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+
+        _binding = FragmentPesquisaBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        //Listener do botao leitura_qrcode
+        return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        databaseHelper = DatabaseHelper(requireContext())
+
         val buttonScan: Button = binding.leituraQrcode
         buttonScan.setOnClickListener {
             checkCameraPermissionAndScan()
         }
 
-
-        return root
+        val buttonPesquisar: Button = binding.buttonPesquisar
+        buttonPesquisar.setOnClickListener {
+            val uid = binding.editTextUidPesquisa.text.toString()
+            verificarEAtualizarInformacoes(uid)
+        }
     }
+
+    private fun verificarEAtualizarInformacoes(uid: String) {
+        if (databaseHelper.isUidExist(uid)) {
+            val cursor = databaseHelper.getDadosPorUid(uid)
+            if (cursor != null && cursor.moveToFirst()) {
+                // Correção: usar getEnderecoEstoqueColumnName para obter o nome da coluna
+                val enderecoEstoque = cursor.safeGetString(DatabaseHelper.getEnderecoEstoqueColumnName())
+                if (enderecoEstoque.length == 6) { // Verifica se o endereço é válido
+                    val posX = enderecoEstoque.substring(0, 2)
+                    val posY = enderecoEstoque.substring(2, 4)
+                    val armazem = enderecoEstoque[4].toString()
+                    val prateleira = enderecoEstoque[5].toString()
+
+                    binding.textViewPosicaoX.text = "Posição X: $posX"
+                    binding.textViewPosicaoY.text = "Posição Y: $posY"
+                    binding.textViewArmazem.text = "Armazem: $armazem"
+                    binding.textViewPrateleira.text = "Prateleira: $prateleira"
+                } else {
+                    Toast.makeText(context, "Endereço cadastrado errado", Toast.LENGTH_SHORT).show()
+                }
+                cursor.close()
+            } else {
+                Toast.makeText(context, "UID não cadastrado", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(context, "UID não cadastrado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun scanQRCode() {
         val integrator = IntentIntegrator.forSupportFragment(this)
@@ -63,7 +96,9 @@ class HomeFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
             // Permissão não concedida, solicite ao usuário.
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), PERMISSION_REQUEST_CAMERA)
+            requestPermissions(arrayOf(Manifest.permission.CAMERA),
+                HomeFragment.PERMISSION_REQUEST_CAMERA
+            )
         } else {
             // Permissão já concedida, inicie o scanner.
             scanQRCode()
@@ -77,33 +112,11 @@ class HomeFragment : Fragment() {
                 Toast.makeText(context, "Cancelado", Toast.LENGTH_LONG).show()
             } else {
                 val uidScaneado = result.contents
-                binding.textViewUID.text = "UID: $uidScaneado"
-                buscarEDefinirDados(uidScaneado)
+                binding.editTextUidPesquisa.setText(uidScaneado)
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
-    }
-
-    private fun buscarEDefinirDados(uid: String) {
-        val databaseHelper = DatabaseHelper(requireContext())
-        val cursor = databaseHelper.getDadosPorUid(uid)
-
-        if (cursor != null && cursor.moveToFirst()) {
-            binding.textViewCodigoProduto.text = "Código Produto: ${cursor.safeGetString(DatabaseHelper.getCodigoProdutoColumnName())}"
-            binding.textViewLoteProduto.text = "Lote Produto: ${cursor.safeGetString(DatabaseHelper.getLoteProdutoColumnName())}"
-            binding.textViewSubLoteProduto.text = "Sub Lote Produto: ${cursor.safeGetString(DatabaseHelper.getSubLoteProdutoColumnName())}"
-            binding.textViewAlmoxarifado.text = "Almoxarifado: ${cursor.safeGetString(DatabaseHelper.getAlmoxarifadoColumnName())}"
-            binding.textViewLoteFornecedor.text = "Lote Fornecedor: ${cursor.safeGetString(DatabaseHelper.getLoteFornecedorColumnName())}"
-            binding.textViewSerieNota.text = "Serie Nota: ${cursor.safeGetString(DatabaseHelper.getSerieNotaColumnName())}"
-            binding.textViewNotaFiscal.text = "Nota Fiscal: ${cursor.safeGetString(DatabaseHelper.getNotaFiscalColumnName())}"
-            binding.textViewEnderecoEstoque.text = "Endereço Estoque: ${cursor.safeGetString(DatabaseHelper.getEnderecoEstoqueColumnName())}"
-
-        } else {
-            Toast.makeText(context, "UID não encontrado", Toast.LENGTH_SHORT).show()
-        }
-
-        cursor?.close()
     }
 
     fun Cursor.safeGetString(columnName: String): String {
@@ -113,7 +126,7 @@ class HomeFragment : Fragment() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            PERMISSION_REQUEST_CAMERA -> {
+            HomeFragment.PERMISSION_REQUEST_CAMERA -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // Permissão concedida, inicie o scanner.
                     scanQRCode()
@@ -125,9 +138,6 @@ class HomeFragment : Fragment() {
             }
         }
     }
-
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -10,7 +10,12 @@
     <string name="menu_home">Ler QR Code</string>
     <string name="menu_qrcode">Criar QR Code</string>
     <string name="menu_incluirproduto">Incluir Produto</string>
+    <string name="menu_pesquisa">Pesquisa</string>
     <string name="bt_lerqrcode">Ler QR Code</string>
+    <string name="bt_scanearqrcode">Scanear QR Code</string>
     <string name="bt_salvarRegistro">Salvar Registro</string>
     <string name="bt_gerarQrCode">Gerar QR Code</string>
+    <string name="pesquisa_uid">Digite o UID ou scaneie o QR code para localizar</string>
+    <string name="bt_pesquisar">Pesquisar</string>
+
 </resources>
