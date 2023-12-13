@@ -70,6 +70,7 @@ class PesquisaFragment : Fragment() {
                     val posY = enderecoEstoque.substring(2, 4).toIntOrNull() ?: return
                     // Atualiza as coordenadas do produto na CustomGridView
                     binding.customGridView.setProductPosition(posX, posY)
+                    binding.customGridView.startBlinking(posX, posY)
                     val armazem = enderecoEstoque[4].toString()
                     val prateleira = enderecoEstoque[5].toString()
 
@@ -140,7 +141,7 @@ class PesquisaFragment : Fragment() {
                     scanQRCode()
                 } else {
                     // Permissão negada, informe o usuário sobre a necessidade da permissão.
-                    Toast.makeText(context, "Permissão da câmera necessária para leitura do QR code", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Permissão da câmera necessária", Toast.LENGTH_SHORT).show()
                 }
                 return
             }

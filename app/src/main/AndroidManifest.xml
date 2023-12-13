@@ -19,7 +19,7 @@
         android:theme="@style/Theme.RR"
         tools:targetApi="31">
         <activity
-            android:name=".ui.pesquisa.Pesquisa"
+            android:name=".ui.pesquisa.PesquisaFragment"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

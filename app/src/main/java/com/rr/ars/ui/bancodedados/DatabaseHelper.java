@@ -62,17 +62,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return ENDERECO_ESTOQUE;
     }
 
-    public String getEnderecoEstoqueByUid(String uid) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String enderecoEstoque = "";
-        Cursor cursor = db.rawQuery("SELECT " + ENDERECO_ESTOQUE + " FROM " + TABLE_NAME + " WHERE " + UID + "=?", new String[]{uid});
-        if (cursor.moveToFirst()) {
-            enderecoEstoque = cursor.getString(cursor.getColumnIndex(ENDERECO_ESTOQUE));
-        }
-        cursor.close();
-        return enderecoEstoque;
-    }
-
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
