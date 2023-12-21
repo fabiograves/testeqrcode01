@@ -1,5 +1,7 @@
 package com.rr.ars.ui.qrcode
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
@@ -7,11 +9,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.rr.ars.databinding.FragmentQrcodeBinding
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 class QrcodeFragment : Fragment() {
@@ -41,6 +47,18 @@ class QrcodeFragment : Fragment() {
             }
         }
 
+        binding.buttonCompartilharQrCode.setOnClickListener {
+            val texto = binding.editTextUidGerarQrCode.text.toString()
+            if (texto.isNotEmpty()) {
+                val bitmap = gerarQrCode(texto)
+                val file = saveBitmapToFile(requireContext(), bitmap, "qrcode.png")
+                file?.let {
+                    shareImageFile(requireContext(), it)
+                }
+            }
+        }
+
+
         return root
     }
 
@@ -59,6 +77,35 @@ class QrcodeFragment : Fragment() {
 
         return bitmap
     }
+
+    fun saveBitmapToFile(context: Context, bitmap: Bitmap, fileName: String): File? {
+        // Diretório para salvar a imagem (pode ser alterado conforme necessário)
+        val directory = context.getExternalFilesDir(null)
+        val imageFile = File(directory, fileName)
+
+        try {
+            val fos = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            fos.close()
+            return imageFile
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    fun shareImageFile(context: Context, file: File) {
+        val uri = FileProvider.getUriForFile(context, "com.rr.ars.provider", file)
+
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, uri)
+            type = "image/png"
+        }
+
+        context.startActivity(Intent.createChooser(shareIntent, "Compartilhar via"))
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

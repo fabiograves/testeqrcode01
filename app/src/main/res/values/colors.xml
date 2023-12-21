@@ -7,4 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="prateleira">#595959</color>
+    <color name="divisoria">#AC9E0B</color>
 </resources>

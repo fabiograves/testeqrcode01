@@ -1,6 +1,7 @@
 package com.rr.ars.ui.home
 
 import android.Manifest
+import android.R
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -8,14 +9,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.Button
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.zxing.integration.android.IntentIntegrator
 import com.rr.ars.databinding.FragmentHomeBinding
-import android.widget.Button
-import androidx.core.content.ContextCompat
 import com.rr.ars.ui.bancodedados.DatabaseHelper
 
 
@@ -28,21 +28,33 @@ class HomeFragment : Fragment() {
         const val PERMISSION_REQUEST_CAMERA = 1
     }
 
+    // Declarando dadosQrCode como uma propriedade da classe
+    private var dadosQrCode: View? = null
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-                ViewModelProvider(this).get(HomeViewModel::class.java)
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        // Inicializando dadosQrCode
+        dadosQrCode = binding.dadosQrCode
 
         //Listener do botao leitura_qrcode
         val buttonScan: Button = binding.leituraQrcode
         buttonScan.setOnClickListener {
             checkCameraPermissionAndScan()
+
+        }
+
+        //Listener do botao LimparCampos
+        val buttonLimparCampos: Button = binding.buttonLimparCampos
+        buttonLimparCampos.setOnClickListener {
+            limparCampos()
+            dadosQrCode?.setVisibility(View.GONE)
         }
 
         return root
@@ -76,7 +88,7 @@ class HomeFragment : Fragment() {
                 Toast.makeText(context, "Cancelado", Toast.LENGTH_LONG).show()
             } else {
                 val uidScaneado = result.contents
-                binding.textViewUID.text = "UID: $uidScaneado"
+                binding.textViewUID.text = "$uidScaneado"
                 buscarEDefinirDados(uidScaneado)
             }
         } else {
@@ -87,22 +99,35 @@ class HomeFragment : Fragment() {
     private fun buscarEDefinirDados(uid: String) {
         val databaseHelper = DatabaseHelper(requireContext())
         val cursor = databaseHelper.getDadosPorUid(uid)
+        dadosQrCode?.setVisibility(View.VISIBLE)
 
         if (cursor != null && cursor.moveToFirst()) {
-            binding.textViewCodigoProduto.text = "Código Produto: ${cursor.safeGetString(DatabaseHelper.getCodigoProdutoColumnName())}"
-            binding.textViewLoteProduto.text = "Lote Produto: ${cursor.safeGetString(DatabaseHelper.getLoteProdutoColumnName())}"
-            binding.textViewSubLoteProduto.text = "Sub Lote Produto: ${cursor.safeGetString(DatabaseHelper.getSubLoteProdutoColumnName())}"
-            binding.textViewAlmoxarifado.text = "Almoxarifado: ${cursor.safeGetString(DatabaseHelper.getAlmoxarifadoColumnName())}"
-            binding.textViewLoteFornecedor.text = "Lote Fornecedor: ${cursor.safeGetString(DatabaseHelper.getLoteFornecedorColumnName())}"
-            binding.textViewSerieNota.text = "Serie Nota: ${cursor.safeGetString(DatabaseHelper.getSerieNotaColumnName())}"
-            binding.textViewNotaFiscal.text = "Nota Fiscal: ${cursor.safeGetString(DatabaseHelper.getNotaFiscalColumnName())}"
-            binding.textViewEnderecoEstoque.text = "Endereço Estoque: ${cursor.safeGetString(DatabaseHelper.getEnderecoEstoqueColumnName())}"
+            binding.textViewCodigoProduto.text = "${cursor.safeGetString(DatabaseHelper.getCodigoProdutoColumnName())}"
+            binding.textViewLoteProduto.text = "${cursor.safeGetString(DatabaseHelper.getLoteProdutoColumnName())}"
+            binding.textViewSubLoteProduto.text = "${cursor.safeGetString(DatabaseHelper.getSubLoteProdutoColumnName())}"
+            binding.textViewAlmoxarifado.text = "${cursor.safeGetString(DatabaseHelper.getAlmoxarifadoColumnName())}"
+            binding.textViewLoteFornecedor.text = "${cursor.safeGetString(DatabaseHelper.getLoteFornecedorColumnName())}"
+            binding.textViewSerieNota.text = "${cursor.safeGetString(DatabaseHelper.getSerieNotaColumnName())}"
+            binding.textViewNotaFiscal.text = "${cursor.safeGetString(DatabaseHelper.getNotaFiscalColumnName())}"
+            binding.textViewEnderecoEstoque.text = "${cursor.safeGetString(DatabaseHelper.getEnderecoEstoqueColumnName())}"
 
         } else {
             Toast.makeText(context, "UID não encontrado", Toast.LENGTH_SHORT).show()
         }
 
         cursor?.close()
+    }
+
+    private fun limparCampos(){
+        binding.textViewUID.text = ""
+        binding.textViewCodigoProduto.text = ""
+        binding.textViewLoteProduto.text = ""
+        binding.textViewSubLoteProduto.text = ""
+        binding.textViewAlmoxarifado.text = ""
+        binding.textViewLoteFornecedor.text = ""
+        binding.textViewSerieNota.text = ""
+        binding.textViewNotaFiscal.text = ""
+        binding.textViewEnderecoEstoque.text = ""
     }
 
     fun Cursor.safeGetString(columnName: String): String {

@@ -16,6 +16,10 @@
     <string name="bt_salvarRegistro">Salvar Registro</string>
     <string name="bt_gerarQrCode">Gerar QR Code</string>
     <string name="pesquisa_uid">Digite o UID ou scaneie o QR code para localizar</string>
-    <string name="bt_pesquisar">Pesquisar</string>
+    <string name="bt_pesquisar">Encontrar</string>
+    <string name="bt_comparar">Comparar QR Code</string>
+    <string name="bt_limparCampos">Limpar Campos</string>
+    <string name="bt_compartilharQrCode">Compartilhar QR Code</string>
+
 
 </resources>
