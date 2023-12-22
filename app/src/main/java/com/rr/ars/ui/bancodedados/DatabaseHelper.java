@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             LOTE_FORNECEDOR + " VARCHAR(18)," +
             SERIE_NOTA + " VARCHAR(3)," +
             NOTA_FISCAL + " VARCHAR(9)," +
-            ENDERECO_ESTOQUE + " VARCHAR(6));";
+            ENDERECO_ESTOQUE + " VARCHAR(9));";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

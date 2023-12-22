@@ -14,12 +14,13 @@ import android.widget.ScrollView
 import androidx.core.content.ContextCompat
 import com.rr.ars.R
 
-class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class CustomGridView(context: Context, attrs: AttributeSet?, private val posX: Int? = null, private val posY: Int? = null) : View(context, attrs) {
     private val paint = Paint()
     private var productPosition: Pair<Int, Int>? = null
 
     val prateleira = ContextCompat.getColor(context, R.color.prateleira)
     val divisoria = ContextCompat.getColor(context, R.color.divisoria)
+    val construcao = ContextCompat.getColor(context, R.color.construcao)
 
     // Dimensões preferidas
     private val cellSize = 7f // Ajuste isso para caber na tela conforme necessário
@@ -75,9 +76,6 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
 
     private var parentScrollView: ScrollView? = null
 
-    fun setParentScrollView(scrollView: ScrollView) {
-        parentScrollView = scrollView
-    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
@@ -101,7 +99,7 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
     private var isBlinking = false
     private var blinkCount = 0
     private var blinkInterval = 1000L // Intervalo em milissegundos
-    private val maxBlinkCount = 20 // Número total de piscadas
+    private val maxBlinkCount = 50 // Número total de piscadas
 
     // Hachuras
     val hatchPaint = Paint().apply {
@@ -112,8 +110,9 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
 
     fun setProductPosition(x: Int, y: Int) {
         productPosition = Pair(x, y)
-        invalidate()
+        startBlinking(x, y) // Inicia o piscar automaticamente ao definir a posição
     }
+
 
     fun startBlinking(x: Int, y: Int) {
         productPosition = Pair(x, y)
@@ -122,11 +121,67 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
         postInvalidateDelayed(blinkInterval)
     }
 
+    // Identificar o armazem
+    var armazemId: String = "Q1"
     override fun onDraw(canvas: Canvas) {
         zoomMatrix.setTranslate(translateX, translateY)
         zoomMatrix.preScale(scaleFactor, scaleFactor)
         canvas.setMatrix(zoomMatrix)
         super.onDraw(canvas)
+
+        when (armazemId) {
+            "Q1" -> desenharLayoutQ1(canvas)
+            "Q2" -> desenharLayoutQ2(canvas)
+            // ... Add cases for Q3 to Q8 ...
+        }
+
+        // Existing code for blinking and drawing product position ...
+        // Determinar a cor do quadrado do produto
+        var productColor = Color.LTGRAY // Cor padrão
+        if (isBlinking) {
+            blinkCount++
+            productColor = if (blinkCount % 2 == 0) Color.WHITE else Color.GREEN
+            if (blinkCount >= maxBlinkCount) {
+                isBlinking = false // Para de piscar após o máximo de piscadas
+                productColor = Color.GREEN // Cor final após piscar
+            }
+        } else if (productPosition != null) {
+            productColor = Color.GREEN // Cor se não estiver piscando
+        }
+
+        // Desenhar a posição do produto
+        productPosition?.let { position ->
+            val (x, y) = position
+            val productColor = if (isBlinking && blinkCount % 2 == 0) Color.WHITE else Color.GREEN
+
+            paint.color = productColor
+            canvas.drawRect(
+                x * cellSize, y * cellSize,
+                (x + 1) * cellSize, (y + 1) * cellSize, paint
+            )
+
+            // Lógica para piscar
+            if (isBlinking) {
+                blinkCount++
+                if (blinkCount >= maxBlinkCount) {
+                    isBlinking = false // Para de piscar
+                } else {
+                    postInvalidateDelayed(blinkInterval) // Agendar próximo piscar
+                }
+            }
+        }
+
+    }
+
+    init {
+        if (posX != null && posY != null) {
+            setProductPosition(posX, posY)
+            startBlinking(posX, posY)
+        }
+    }
+
+    private fun desenharLayoutQ1(canvas: Canvas) {
+        // Desenha o layout específico para o armazém Q1
         // Desenhar a grade
         for (i in 0..79) {
             for (j in 0..184) {
@@ -135,7 +190,7 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
 
                 // Pintar células de cinza escuro (prateleiras HORIZONTAL)
                 if ((i in 2 .. 63 && j in 1 ..3)
-                    ) {
+                ) {
                     paint.color = prateleira
                 }
 
@@ -168,7 +223,7 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
                     (i == 55 && j in 1..3) ||
                     (i == 64 && j in 1..3)
 
-                    ) {
+                ) {
                     paint.color = divisoria
                 }
 
@@ -199,7 +254,7 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
 
                 // Pintar divisao prateleiras (Superior Meio)
                 if (
-                    //coluna 1
+                //coluna 1
                     (i == 14 && j in 11 .. 64) ||
                     (i in 11..17 && j == 10) ||
                     (i in 11..17 && j == 19) ||
@@ -242,7 +297,7 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
 
                 // Pintar divisao prateleiras (Inferior Meio)
                 if (
-                    //coluna 1
+                //coluna 1
                     (i == 14 && j in 100 .. 172) ||
                     (i in 11..17 && j == 100) ||
                     (i in 11..17 && j == 109) ||
@@ -291,7 +346,7 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
                     (i in 0 .. 79 && j == 184) ||
                     (i == 79 && j in 0 .. 184)
 
-                    ) {
+                ) {
                     paint.color = Color.BLACK
                 }
 
@@ -299,8 +354,8 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
                 if ((i in 65..78 && j in 1 .. 64) ||
                     (i in 1..38 && j in 175 .. 183)
 
-                    ){
-                    paint.color = Color.parseColor("#FF0000")
+                ){
+                    paint.color = construcao
                 }
 
 
@@ -311,42 +366,11 @@ class CustomGridView(context: Context, attrs: AttributeSet?) : View(context, att
                 )
             }
         }
-
-        // Determinar a cor do quadrado do produto
-        var productColor = Color.LTGRAY // Cor padrão
-        if (isBlinking) {
-            blinkCount++
-            productColor = if (blinkCount % 2 == 0) Color.WHITE else Color.GREEN
-            if (blinkCount >= maxBlinkCount) {
-                isBlinking = false // Para de piscar após o máximo de piscadas
-                productColor = Color.GREEN // Cor final após piscar
-            }
-        } else if (productPosition != null) {
-            productColor = Color.GREEN // Cor se não estiver piscando
-        }
-
-        // Desenhar a posição do produto e células adjacentes
-        productPosition?.let { position ->
-            val (x, y) = position
-            val rangeX = (x - 1)..(x + 1)
-            val rangeY = (y - 1)..(y + 1)
-            for (i in rangeX) {
-                for (j in rangeY) {
-                    if (i in 0..79 && j in 0..184) { // Verificar limites para evitar desenhar fora da grade
-                        val cellColor = if (isBlinking || (i == x && j == y)) productColor else Color.LTGRAY
-                        paint.color = cellColor
-                        canvas.drawRect(
-                            i * cellSize, j * cellSize,
-                            (i + 1) * cellSize, (j + 1) * cellSize, paint
-                        )
-                    }
-                }
-            }
-        }
-
-        // Agendar o próximo piscar se necessário
-        if (isBlinking && blinkCount < maxBlinkCount) {
-            postInvalidateDelayed(blinkInterval)
-        }
     }
+
+    private fun desenharLayoutQ2(canvas: Canvas) {
+        // Esqueleto para desenhar o layout do armazém Q2
+        // Você deve preencher esta função com a lógica específica para Q2
+    }
+
 }

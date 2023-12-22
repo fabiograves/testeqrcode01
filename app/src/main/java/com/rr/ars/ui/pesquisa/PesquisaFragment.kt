@@ -27,6 +27,8 @@ class PesquisaFragment : Fragment() {
 
     private lateinit var databaseHelper: DatabaseHelper
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,9 +45,6 @@ class PesquisaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         databaseHelper = DatabaseHelper(requireContext())
 
-        val customGridView = binding.customGridView // Se você está usando View Binding
-        // Ou se você não estiver usando View Binding:
-        //val customGridView = view.findViewById<CustomGridView>(R.id.customGridView)
 
         val buttonScan: Button = binding.leituraQrcode
         buttonScan.setOnClickListener {
@@ -65,14 +64,12 @@ class PesquisaFragment : Fragment() {
             if (cursor != null && cursor.moveToFirst()) {
                 // Correção: usar getEnderecoEstoqueColumnName para obter o nome da coluna
                 val enderecoEstoque = cursor.safeGetString(DatabaseHelper.getEnderecoEstoqueColumnName())
-                if (enderecoEstoque.length == 6) { // Verifica se o endereço é válido
-                    val posX = enderecoEstoque.substring(0, 2).toIntOrNull() ?: return
-                    val posY = enderecoEstoque.substring(2, 4).toIntOrNull() ?: return
-                    // Atualiza as coordenadas do produto na CustomGridView
-                    binding.customGridView.setProductPosition(posX, posY)
-                    binding.customGridView.startBlinking(posX, posY)
-                    val armazem = enderecoEstoque[4].toString()
-                    val prateleira = enderecoEstoque[5].toString()
+                if (enderecoEstoque.length == 9) { // Verifica se o endereço é válido
+                    val posX = enderecoEstoque.substring(0, 3).toIntOrNull() ?: return
+                    val posY = enderecoEstoque.substring(3, 6).toIntOrNull() ?: return
+                    val prateleira = enderecoEstoque[6].toString()
+                    val armazem = enderecoEstoque.substring(7, 9)
+                    criarEConfigurarCustomGridView(armazem, posX, posY)
 
                     binding.textViewPosicaoX.text = "Posição X: $posX"
                     binding.textViewPosicaoY.text = "Posição Y: $posY"
@@ -88,6 +85,16 @@ class PesquisaFragment : Fragment() {
         } else {
             Toast.makeText(context, "UID não cadastrado", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun criarEConfigurarCustomGridView(armazemId: String, posX: Int?, posY: Int?): CustomGridView {
+        val customGridView = CustomGridView(requireContext(), null, posX, posY).apply {
+            this.armazemId = armazemId
+        }
+
+        binding.FrameLayoutArmazens.removeAllViews()
+        binding.FrameLayoutArmazens.addView(customGridView)
+        return customGridView
     }
 
 
